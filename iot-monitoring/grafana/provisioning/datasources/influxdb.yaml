@@ -6,15 +6,15 @@ datasources:
     access: proxy
     url: http://influxdb:8086
     isDefault: true
+    uid: influxdb-iot-datasource
+    editable: true
     
     jsonData:
-      version: "2"
+      version: "Flux"
       organization: IoT_Organization
       defaultBucket: sensor_data
       tlsSkipVerify: true
       httpMode: POST
-      maxSeries: 1000
-      timeout: 60
       
     secureJsonData:
       token: iot-super-secret-token-2024

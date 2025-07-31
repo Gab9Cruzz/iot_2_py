@@ -71,9 +71,9 @@ services:
       timeout: 10s
       retries: 3
 
-  # Grafana para visualización de datos
+# Grafana para visualización de datos
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:10.2.0
     container_name: iot-grafana
     depends_on:
       influxdb:
@@ -83,21 +83,27 @@ services:
     environment:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: grafana_admin_2024
-      GF_INSTALL_PLUGINS: grafana-clock-panel,grafana-simple-json-datasource
       GF_USERS_ALLOW_SIGN_UP: false
       GF_SERVER_DOMAIN: localhost
+      GF_SERVER_ROOT_URL: http://localhost:3000
+      GF_LOG_LEVEL: info
+      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: grafana-lokiexplore-app
+      GF_INSTALL_PLUGINS: ""
+      GF_SECURITY_DISABLE_INITIAL_ADMIN_CREATION: false
+      GF_PATHS_PROVISIONING: /etc/grafana/provisioning
     volumes:
       - grafana-storage:/var/lib/grafana
-      - ./grafana/provisioning/:/etc/grafana/provisioning/
-      - ./grafana/dashboards/:/var/lib/grafana/dashboards/
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
     networks:
       - iot-network
+    user: "472:472"
     healthcheck:
-      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1"]
       interval: 30s
       timeout: 10s
-      retries: 3
-
+      retries: 5
+      start_period: 90s
   # Productor de datos de sensores IoT
   iot-producer:
     build:
